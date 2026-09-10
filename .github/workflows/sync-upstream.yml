@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.SYNC_PAT }}
 
       - name: Sync with upstream
         run: |
@@ -20,5 +20,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git remote add upstream https://github.com/Jmainguy/ghreport.git
           git fetch upstream
+          if git merge-base --is-ancestor upstream/main HEAD; then
+            echo "Already up to date with upstream. Nothing to do."
+            exit 0
+          fi
           git merge upstream/main --no-edit
           git push origin main
