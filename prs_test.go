@@ -33,10 +33,20 @@ func TestExtractPRDataFromEdges(t *testing.T) {
 				URL       githubv4.URI
 				CreatedAt githubv4.DateTime
 				IsDraft   githubv4.Boolean
+				Author    struct {
+					Login githubv4.String
+				}
+				ReviewDecision githubv4.String
+				Mergeable      githubv4.String
 			}{
 				URL:       uri1,
 				CreatedAt: githubv4.DateTime{Time: time.Now().UTC().Truncate(time.Hour)},
 				IsDraft:   githubv4.Boolean(false),
+				Author: struct {
+					Login githubv4.String
+				}{
+					Login: githubv4.String("john_doe"),
+				},
 			},
 		},
 		{
@@ -44,19 +54,30 @@ func TestExtractPRDataFromEdges(t *testing.T) {
 				URL       githubv4.URI
 				CreatedAt githubv4.DateTime
 				IsDraft   githubv4.Boolean
+				Author    struct {
+					Login githubv4.String
+				}
+				ReviewDecision githubv4.String
+				Mergeable      githubv4.String
 			}{
 				URL:       uri2,
 				CreatedAt: githubv4.DateTime{Time: time.Now().UTC().Truncate(time.Hour)},
 				IsDraft:   githubv4.Boolean(true),
+				Author: struct {
+					Login githubv4.String
+				}{
+					Login: githubv4.String("john_doe"),
+				},
 			},
 		},
 	}
 
 	// Define expected output
-	expected := []PR{
+	expected := []PullRequest{
 		{
 			URL:       "https://github.com/my-org/my-repo/pull/1",
 			CreatedAt: githubv4.DateTime{Time: time.Now().UTC().Truncate(time.Hour)},
+			Owner:     "john_doe",
 		},
 	}
 
@@ -71,8 +92,8 @@ func TestGetPrFromRepo(t *testing.T) {
 	// Mock data for testing
 	org := "testOrg"
 	repo := "testRepo"
-	prs := []PR{
-		{CreatedAt: githubv4.DateTime{}, URL: "https://github.com/testOrg/testRepo/pull/1"},
+	prs := []PullRequest{
+		{CreatedAt: githubv4.DateTime{}, URL: "https://github.com/testOrg/testRepo/pull/1", Owner: "john_doe"},
 	}
 
 	// Mock client
@@ -97,11 +118,27 @@ func TestGetPrFromRepo(t *testing.T) {
 		repoQuery.Repository.PullRequests.PageInfo.HasNextPage = false
 		repoQuery.Repository.PullRequests.PageInfo.EndCursor = "endCursor"
 		repoQuery.Repository.PullRequests.Edges = []PullRequestEdge{
-			{Node: struct {
-				URL       githubv4.URI
-				CreatedAt githubv4.DateTime
-				IsDraft   githubv4.Boolean
-			}{URL: uri, CreatedAt: githubv4.DateTime{}, IsDraft: false}},
+			{
+				Node: struct {
+					URL       githubv4.URI
+					CreatedAt githubv4.DateTime
+					IsDraft   githubv4.Boolean
+					Author    struct {
+						Login githubv4.String
+					}
+					ReviewDecision githubv4.String
+					Mergeable      githubv4.String
+				}{
+					URL:       uri,
+					CreatedAt: githubv4.DateTime{},
+					IsDraft:   githubv4.Boolean(false),
+					Author: struct {
+						Login githubv4.String
+					}{
+						Login: githubv4.String("john_doe"),
+					},
+				},
+			},
 		}
 	})
 
