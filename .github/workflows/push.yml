@@ -1,61 +1,8 @@
+name: Call Reusable Golang CI Workflow
+
 on:
-    push:
+  push:
 
-name: push
 jobs:
-  golangci:
-    name: lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-  test:
-    name: Test with Coverage
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.19'
-
-      - name: Get Build Tools
-        run: |
-          go install github.com/ory/go-acc@latest
-
-      - name: git checkout
-        uses: actions/checkout@v3
-
-      - name: Install dependencies
-        run: |
-          go mod download
-
-      - name: Run Unit tests
-        run: |
-          go-acc .
-
-      - name: Send coverage
-        uses: shogo82148/actions-goveralls@v1
-        with:
-          path-to-profile: coverage.txt
-
-  build:
-    name: Lint and build
-    runs-on: ubuntu-latest
-    steps:
-      - name: install go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.19'
-
-      - name: git checkout
-        uses: actions/checkout@v3
-
-      - name: install lint
-        run: GO111MODULE=off go get golang.org/x/lint/golint
-
-      - name: run golint and go fmt
-        run: ./tests/fmtlint.sh
-
-      - name: go build
-        run: go build
+  golang-ci:
+    uses: Jmainguy/golang-workflows/.github/workflows/golang-ci.yml@v2.1.1
